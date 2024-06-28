@@ -6,7 +6,7 @@ const openai = new OpenAI({ baseURL: process.env.OPENAI_API_ENDPOINT })
 
 export async function getGPTResponse(messages: ChatCompletionMessageParam[]) {
     return await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'llama3:latest',
         messages,
     })
 }
