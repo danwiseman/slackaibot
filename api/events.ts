@@ -30,7 +30,8 @@ export async function POST(request: Request) {
     if (await isValidSlackRequest(request, body)) {
         if (requestType === 'event_callback') {
             const eventType = body.event.type
-            if (eventType === 'app_mention') {
+            const channelType = body.event.channel_type
+            if ((eventType === 'app_mention') || ((eventType === 'message') && (channelType === 'im'))){
                 await sendGPTResponse(body.event)
                 return new Response('Success!', { status: 200 })
             }
