@@ -1,0 +1,22 @@
+{
+  "name": "slackaibot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danwiseman/slackaibot.git"
+  },
+  "private": true,
+  "dependencies": {
+    "@slack/web-api": "7.0.1",
+    "openai": "4.26.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.16",
+    "typescript": "5.3.3"
+  }
+}
