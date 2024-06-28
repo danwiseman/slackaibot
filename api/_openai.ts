@@ -2,11 +2,11 @@ import OpenAI from 'openai'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 import type { ConversationsRepliesResponse } from '@slack/web-api'
 
-const openai = new OpenAI({ baseURL: process.env.OPENAI_API_ENDPOINT })
+const openai = new OpenAI()
 
 export async function getGPTResponse(messages: ChatCompletionMessageParam[]) {
     return await openai.chat.completions.create({
-        model: 'llama3:latest',
+        model: 'gpt-3.5-turbo',
         messages,
     })
 }
