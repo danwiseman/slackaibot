@@ -32,6 +32,7 @@ export async function POST(request: Request) {
             const eventType = body.event.type
             const channelType = body.event.channel_type
             if ((eventType === 'app_mention') || ((eventType === 'message') && (channelType === 'im'))){
+                console.log('received message' + body.event.text)
                 await sendGPTResponse(body.event)
                 return new Response('Success!', { status: 200 })
             }
