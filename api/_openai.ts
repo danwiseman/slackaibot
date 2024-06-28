@@ -4,9 +4,9 @@ import type { ConversationsRepliesResponse } from '@slack/web-api'
 
 const openai = new OpenAI()
 
-export async function getGPTResponse(messages: ChatCompletionMessageParam[]) {
+export async function getGPTResponse(messages: ChatCompletionMessageParam[], model: string = "gpt-3.5-turbo") {
     return await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model,
         messages,
     })
 }
