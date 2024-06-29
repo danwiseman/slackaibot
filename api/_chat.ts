@@ -1,14 +1,13 @@
-import {ChatPostMessageArguments, type ConversationsRepliesResponse, WebClient} from '@slack/web-api'
-import {generatePromptFromThread, getTextGPTResponse} from './_openai'
-import {generateMistralPromptFromThread, getMistralTextGPTResponse} from "./_mistral";
+import { ChatPostMessageArguments,
+    type ConversationsRepliesResponse, WebClient} from '@slack/web-api'
+import {getMessagesFromSlackMessages, getResponseFromModel, PromptModels} from "./_ai";
+import {AIMessage, HumanMessage} from "@langchain/core/messages";
+import {BaseLanguageModelInput} from "@langchain/core/dist/language_models/base";
+
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN)
 
-export enum PromptModels {
-    Chat = "mistral-large-latest",
-    Code = "codestral-latest",
-    Image = "dall-e-4"
-}
+
 
 type Event = {
     channel: string
@@ -37,30 +36,15 @@ export async function sendGPTResponse(event: Event) {
         const model = getPromptModelsFromSlackEmoji(
             thread.messages[0].text?.replace(`<@${botID}> `, ''))
 
-        switch (model) {
-            case PromptModels.Image:
-                //await postImageMessage()
-                await postTextMessage({
-                    channel,
-                    thread_ts: ts,
-                    text: 'Image generation not yet implemented',
-                })
-                break
-            case PromptModels.Code:
-            case PromptModels.Chat:
-                const prompts = await generateMistralPromptFromThread(thread)
-                const gptResponse = await getMistralTextGPTResponse(prompts, model)
-                await postTextMessage({
-                    channel,
-                    thread_ts: ts,
-                    text: `${gptResponse.choices[0].message.content}`,
-                })
-                break
-            default:
-                throw new Error('no model available')
+        const prompts: Promise<BaseLanguageModelInput[]> = getMessagesFromSlackMessages(thread.messages)
+        const aiResponse = getResponseFromModel(prompts, model)
 
-        }
-
+        if (!aiResponse) throw new Error('No response')
+        await slack.chat.postMessage({
+            channel,
+            thread_ts: ts,
+            text: `${(await aiResponse).content}`
+        })
 
     } catch (error) {
         if (error instanceof Error) {
@@ -73,12 +57,9 @@ export async function sendGPTResponse(event: Event) {
     }
 }
 
-export async function postTextMessage(options: ChatPostMessageArguments) {
 
-    await slack.chat.postMessage(options)
-}
 
-export function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
+function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
 
     let regex = new RegExp('^:.*?:');
 
@@ -100,27 +81,3 @@ export function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
 
 }
 
-export async function generatePromptsFromMessage({
-                                                     messages,
-                                                 }: ConversationsRepliesResponse) {
-
-    if (!messages) throw new Error('No messages found in thread')
-    const botID = messages[0].reply_users?.[0]
-
-    return messages
-        .map((message: any) => {
-            const isBot = !!message.bot_id && !message.client_msg_id
-            const isNotMentioned = !isBot && !message.text.startsWith(`<@`)
-
-            if (isNotMentioned) return null
-
-            return {
-                role: isBot ? 'assistant' : 'user',
-                content: isBot
-                    ? message.text
-                    : message.text.replace(`<@${botID}> `, ''),
-            }
-        })
-        .filter(Boolean);
-
-}
