@@ -1,7 +1,13 @@
 import { WebClient } from '@slack/web-api'
-import { getGPTResponse, generatePromptFromThread } from './_openai'
+import { getTextGPTResponse, generatePromptFromThread } from './_openai'
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN)
+
+enum PromptModels {
+    Chat = "mistral-large-latest",
+    Code = "codestral-latest",
+    Image = "dall-e-4"
+}
 
 type Event = {
     channel: string
@@ -19,14 +25,19 @@ export async function sendGPTResponse(event: Event) {
             inclusive: true,
         })
 
-        const prompts = await generatePromptFromThread(thread)
-        const gptResponse = await getGPTResponse(prompts)
+        if (!thread.messages) throw new Error('No messages found in thread')
+
+        const botID = thread.messages[0].reply_users?.[0]
+
+        const model = getPromptModelsFromSlackEmoji(
+            thread.messages[0].text?.replace(`<@${botID}> `, ''))
 
         await slack.chat.postMessage({
             channel,
             thread_ts: ts,
             text: `${gptResponse.choices[0].message.content}`,
         })
+
     } catch (error) {
         if (error instanceof Error) {
             await slack.chat.postMessage({
@@ -36,4 +47,26 @@ export async function sendGPTResponse(event: Event) {
             })
         }
     }
+}
+
+export async function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
+
+    let regex = new RegExp('^:.*?:');
+
+    let matches = messageText?.match(regex);
+    if (matches && matches[0]) {
+        let emoji = matches[0];
+
+        switch (emoji) {
+            case ':avocado:':
+                return PromptModels.Code
+            case ':camera:':
+                return PromptModels.Image
+            default:
+                return PromptModels.Chat
+        }
+    }
+
+    return PromptModels.Chat
+
 }
