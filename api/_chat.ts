@@ -1,5 +1,5 @@
-import { WebClient } from '@slack/web-api'
-import { getTextGPTResponse, generatePromptFromThread } from './_openai'
+import { ChatPostMessageArguments, WebClient} from '@slack/web-api'
+import {generatePromptFromThread, getTextGPTResponse} from './_openai'
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN)
 
@@ -15,8 +15,12 @@ type Event = {
     thread_ts?: string
 }
 
+async function postImageMessage() {
+
+}
+
 export async function sendGPTResponse(event: Event) {
-    const { channel, ts, thread_ts } = event
+    const {channel, ts, thread_ts} = event
 
     try {
         const thread = await slack.conversations.replies({
@@ -32,11 +36,30 @@ export async function sendGPTResponse(event: Event) {
         const model = getPromptModelsFromSlackEmoji(
             thread.messages[0].text?.replace(`<@${botID}> `, ''))
 
-        await slack.chat.postMessage({
-            channel,
-            thread_ts: ts,
-            text: `${gptResponse.choices[0].message.content}`,
-        })
+        switch (model) {
+            case PromptModels.Image:
+                await postImageMessage()
+                await postTextMessage({
+                    channel,
+                    thread_ts: ts,
+                    text: 'Image generation not yet implemented',
+                })
+                break
+            case PromptModels.Code:
+            case PromptModels.Chat:
+                const prompts = await generatePromptFromThread(thread)
+                const gptResponse = await getTextGPTResponse(prompts)
+                await postTextMessage({
+                    channel,
+                    thread_ts: ts,
+                    text: `${gptResponse.choices[0].message.content}`,
+                })
+                break
+            default:
+                throw new Error('no model available')
+
+        }
+
 
     } catch (error) {
         if (error instanceof Error) {
@@ -49,7 +72,12 @@ export async function sendGPTResponse(event: Event) {
     }
 }
 
-export async function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
+export async function postTextMessage(options: ChatPostMessageArguments) {
+
+    await slack.chat.postMessage(options)
+}
+
+export function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
 
     let regex = new RegExp('^:.*?:');
 
