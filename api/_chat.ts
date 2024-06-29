@@ -1,9 +1,9 @@
-import { ChatPostMessageArguments, WebClient} from '@slack/web-api'
+import {ChatPostMessageArguments, type ConversationsRepliesResponse, WebClient} from '@slack/web-api'
 import {generatePromptFromThread, getTextGPTResponse} from './_openai'
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN)
 
-enum PromptModels {
+export enum PromptModels {
     Chat = "mistral-large-latest",
     Code = "codestral-latest",
     Image = "dall-e-4"
@@ -96,5 +96,30 @@ export function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
     }
 
     return PromptModels.Chat
+
+}
+
+export async function generatePromptsFromMessage({
+                                                     messages,
+                                                 }: ConversationsRepliesResponse) {
+
+    if (!messages) throw new Error('No messages found in thread')
+    const botID = messages[0].reply_users?.[0]
+
+    return messages
+        .map((message: any) => {
+            const isBot = !!message.bot_id && !message.client_msg_id
+            const isNotMentioned = !isBot && !message.text.startsWith(`<@`)
+
+            if (isNotMentioned) return null
+
+            return {
+                role: isBot ? 'assistant' : 'user',
+                content: isBot
+                    ? message.text
+                    : message.text.replace(`<@${botID}> `, ''),
+            }
+        })
+        .filter(Boolean);
 
 }
