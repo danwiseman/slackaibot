@@ -24,8 +24,10 @@ export async function getMessagesFromSlackMessages(messages: MessageElement[]) {
             if(isNotMentioned) { return null }
 
             if(isBot) {
+                console.log(`adding ai message ${message.text}`)
                 return new AIMessage({content: message.text})
             }
+            console.log(`adding human message ${message.text}`)
             return new HumanMessage({ content: message.text.replace(`<@${botID}> `, '')} )
         }).filter(Boolean)
 }

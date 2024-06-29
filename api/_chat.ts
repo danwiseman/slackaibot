@@ -38,7 +38,7 @@ export async function sendGPTResponse(event: Event) {
 
         const prompts: Promise<BaseLanguageModelInput[]> = getMessagesFromSlackMessages(thread.messages)
 
-        console.log(`using prompt: ${prompts} with model ${model}`)
+        console.log(`using model ${model}`)
 
         const aiResponse = getResponseFromModel(prompts, model)
 
