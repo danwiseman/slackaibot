@@ -1,17 +1,18 @@
 # Slack Bot
 
-This is a simple implementation of a slack bot using the 
-official [Slack API](https://api.slack.com/) in Node with Socket Mode. 
-It listens for direct messages from users and responds accordingly 
-if they are mentioned.
+This is my attempt to create a bot for slack that responds with different models
+based on what it receives. If an :avocado: emoji is prefixed on the message,
+it will respond with a developer model. A :camera: emoji will use an image
+generation model. And finally, no emoji will use a large model for general text.
+
 
 ## Requirements
 
-- Slack App (API Key)
+- Doesn't fully work yet.
 
 ## Based
 
-It is based on Vercel's slackbot
+Originally, this was based on Vercel's slackbot. Some code from them still exists
 
 https://github.com/vercel/examples/tree/main/solutions/slackbot
 
