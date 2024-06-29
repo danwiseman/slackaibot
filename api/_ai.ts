@@ -21,11 +21,13 @@ export async function getMessagesFromSlackMessages(messages: MessageElement[]) {
             const isBot = !!message.bot_id && !message.client_msg_id
             const isNotMentioned = !isBot && !message.text.startsWith(`<@`)
 
+            if(isNotMentioned) { return null }
+
             if(isBot) {
                 return new AIMessage({content: message.text})
             }
             return new HumanMessage({ content: message.text.replace(`<@${botID}> `, '')} )
-        })
+        }).filter(Boolean)
 }
 
 export async function getResponseFromModel(prompts:  Promise<BaseLanguageModelInput>, promptModel: PromptModels) {
