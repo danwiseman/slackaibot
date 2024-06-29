@@ -1,5 +1,6 @@
 import {ChatPostMessageArguments, type ConversationsRepliesResponse, WebClient} from '@slack/web-api'
 import {generatePromptFromThread, getTextGPTResponse} from './_openai'
+import {generateMistralPromptFromThread, getMistralTextGPTResponse} from "./_mistral";
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN)
 
@@ -47,8 +48,8 @@ export async function sendGPTResponse(event: Event) {
                 break
             case PromptModels.Code:
             case PromptModels.Chat:
-                const prompts = await generatePromptFromThread(thread)
-                const gptResponse = await getTextGPTResponse(prompts)
+                const prompts = await generateMistralPromptFromThread(thread)
+                const gptResponse = await getMistralTextGPTResponse(prompts, model)
                 await postTextMessage({
                     channel,
                     thread_ts: ts,
