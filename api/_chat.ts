@@ -38,7 +38,7 @@ export async function sendGPTResponse(event: Event) {
 
         switch (model) {
             case PromptModels.Image:
-                await postImageMessage()
+                //await postImageMessage()
                 await postTextMessage({
                     channel,
                     thread_ts: ts,
