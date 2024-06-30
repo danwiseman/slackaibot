@@ -28,7 +28,6 @@ export async function POST(request: Request) {
         return new Response(body.challenge, { status: 200 })
     }
 
-    console.log (`received event ${requestType} with body.event of ${body.event}`)
 
     if (await isValidSlackRequest(request, body)) {
         console.log (`received event ${requestType} with body.event of ${body.event}`)
