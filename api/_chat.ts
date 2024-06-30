@@ -50,7 +50,8 @@ export async function sendGPTResponse(event: Event) {
 
             await slack.filesUploadV2({
                 file: readStream,
-                filename: filename,
+                filename: `${await aiResponse.prompt.replaceAll(' ', '_')}.png`,
+                thread_ts: ts,
                 channel_id: channel,
             })
         } else {
