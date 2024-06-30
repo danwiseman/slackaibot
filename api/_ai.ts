@@ -1,5 +1,5 @@
 import {ChatMistralAI} from '@langchain/mistralai';
-import {ChatOpenAI} from "@langchain/openai";
+import {ChatOpenAI, DallEAPIWrapper } from "@langchain/openai";
 import {AIMessage, HumanMessage} from "@langchain/core/messages";
 import {MessageElement} from "@slack/web-api/dist/types/response/ConversationsRepliesResponse";
 // @ts-ignore
@@ -33,12 +33,18 @@ export async function getMessagesFromSlackMessages(messages: MessageElement[]) {
 }
 
 export async function getResponseFromModel(prompts:  Promise<BaseLanguageModelInput>, promptModel: PromptModels) {
-    let client = null
+    let response = null
     if(promptModel === PromptModels.Image) {
-        client = new ChatOpenAI({ model: promptModel })
+        const client = new DallEAPIWrapper({
+            n: 1,
+            model: promptModel,
+            apiKey: process.env.OPENAI_API_KEY, // Default
+        });
+        response = { content: await client.invoke(await prompts) }
     } else {
-        client = new ChatMistralAI({ model: promptModel })
+        const client = new ChatMistralAI({ model: promptModel })
+        response = await client.invoke(await prompts)
     }
 
-    return await client.invoke(await prompts)
+    return response
 }

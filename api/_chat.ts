@@ -2,7 +2,10 @@ import { WebClient} from '@slack/web-api'
 import {getMessagesFromSlackMessages, getResponseFromModel, PromptModels} from "./_ai";
 // @ts-ignore
 import {BaseLanguageModelInput} from '@langchain/core/dist/language_models/base';
-
+import { DallEAPIWrapper } from "@langchain/openai";
+import {Readable} from "node:stream";
+import axios from "axios";
+import path from 'path';
 
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN)
@@ -39,11 +42,23 @@ export async function sendGPTResponse(event: Event) {
         const aiResponse = getResponseFromModel(prompts, model)
 
         if (!aiResponse) throw new Error('No response')
-        await slack.chat.postMessage({
-            channel,
-            thread_ts: ts,
-            text: `${(await aiResponse).content}`
-        })
+
+        if (model === PromptModels.Image) {
+
+            const { stream: readStream, filename } = await urlToReadStream(`${(await aiResponse).content}`);
+
+            await slack.filesUploadV2({
+                file: readStream,
+                filename: filename,
+                channel_id: channel,
+            })
+        } else {
+            await slack.chat.postMessage({
+                channel,
+                thread_ts: ts,
+                text: `${(await aiResponse).content}`
+            })
+        }
 
     } catch (error) {
         if (error instanceof Error) {
@@ -78,3 +93,17 @@ export function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
     return PromptModels.Chat;
 }
 
+async function urlToReadStream(url: string): Promise<{ stream: Readable, filename: string }> {
+    const response = await axios({
+        url,
+        method: 'GET',
+        responseType: 'stream',
+    });
+
+    const filename = path.basename(url);
+
+    return {
+        stream: response.data,
+        filename,
+    };
+}
