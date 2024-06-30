@@ -15,7 +15,8 @@
     "@slack/web-api": "7.0.1",
     "@langchain/openai": "^0.2.1",
     "@langchain/mistralai": "^0.0.25",
-    "@langchain/core": "^0.2.11"
+    "@langchain/core": "^0.2.11",
+    "redis": "^4.6.14"
   },
   "devDependencies": {
     "@types/node": "20.11.16",

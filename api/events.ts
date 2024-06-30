@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { sendGPTResponse } from './_chat'
+import {cacheClient} from "./_cache";
 
 export const config = {
     maxDuration: 30,
@@ -29,17 +30,40 @@ export async function POST(request: Request) {
 
     if (await isValidSlackRequest(request, body)) {
         if (requestType === 'event_callback') {
-            const eventType = body.event.type
-            const channelType = body.event.channel_type
-            console.log('received message' + eventType + channelType)
-            if ((eventType === 'app_mention') || ((eventType === 'message') && (channelType === 'im'))){
-                console.log('received message' + body.event.text)
-                await sendGPTResponse(body.event)
-                console.log('sent response')
-                return new Response('Success!', { status: 200 })
+            const eventID = body.event_id
+
+            await cacheClient.connect()
+            const cachedEvent = cacheClient.get(eventID)
+
+            if (await cachedEvent) {
+                console.log(`already received event ${eventID}`)
+                if (await cachedEvent !== 'error') {
+                    // already received, don't process again unless error
+                    return new Response('Success!', {status: 200})
+                } else {
+                    return await checkAndProcessEvent(body)
+                }
+            } else {
+                return await checkAndProcessEvent(body)
             }
         }
     }
 
     return new Response('OK', { status: 200 })
+}
+
+async function checkAndProcessEvent(body: any) {
+    const eventType = body.event.type
+    const channelType = body.event.channel_type
+    const eventID = body.event_id
+
+    await cacheClient.set(eventID, 'processing')
+    if ((eventType === 'app_mention') || ((eventType === 'message') && (channelType === 'im'))) {
+        await sendGPTResponse(body.event)
+        await cacheClient.set(eventID, 'processed')
+
+    } else {
+        await cacheClient.set(eventID, 'skipped')
+    }
+    return new Response('Success!', {status: 200})
 }
