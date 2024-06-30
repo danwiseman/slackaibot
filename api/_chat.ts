@@ -32,7 +32,7 @@ export async function sendGPTResponse(event: Event) {
         if (!thread.messages) throw new Error('No messages found in thread')
 
         const model = getPromptModelsFromSlackEmoji(
-            thread.messages[0].text?.replace(/^<@.*?>/g, ''))
+            thread.messages[0].text?.replace(/^<@.*?>/, ''))
 
         const prompts: Promise<BaseLanguageModelInput[]> = getMessagesFromSlackMessages(thread.messages)
 

@@ -14,7 +14,6 @@ export enum PromptModels {
 export async function getMessagesFromSlackMessages(messages: MessageElement[]) {
 
     if (!messages) throw new Error('No messages found in thread')
-    const botID = messages[0].reply_users?.[0]
 
     return messages
         .map((message: any) => {
@@ -28,7 +27,7 @@ export async function getMessagesFromSlackMessages(messages: MessageElement[]) {
                 return new AIMessage({content: message.text})
             }
             console.log(`adding human message ${message.text}`)
-            return new HumanMessage({ content: message.text.replace(`<@${botID}> `, '')} )
+            return new HumanMessage({ content: message.text.replace(/^<@.*?>/, '')} )
         }).filter(Boolean)
 }
 
