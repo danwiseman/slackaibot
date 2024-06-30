@@ -6,6 +6,7 @@ import { DallEAPIWrapper } from "@langchain/openai";
 import {Readable} from "node:stream";
 import axios from "axios";
 import path from 'path';
+import {AIMessage, HumanMessage} from "@langchain/core/messages";
 
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN)
@@ -35,7 +36,7 @@ export async function sendGPTResponse(event: Event) {
         const model = getPromptModelsFromSlackEmoji(
             thread.messages[0].text?.replace(/^<@.*?>/, ''))
 
-        const prompts: Promise<BaseLanguageModelInput[]> = getMessagesFromSlackMessages(thread.messages)
+        const prompts: Promise<(null | AIMessage | HumanMessage)[]> = getMessagesFromSlackMessages(thread.messages)
 
         console.log(`using model ${model}`)
 
