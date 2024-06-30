@@ -46,7 +46,7 @@ export async function getResponseFromModel(prompts:  Promise<(null | AIMessage |
             .map((message) => message.text)
             .join(' ');
 
-        response = { content: await client.invoke(imagePrompt), prompt: imagePrompt }
+        response = { content: await client.invoke(imagePrompt) }
     } else {
         const client = new ChatMistralAI({ model: promptModel })
         response = await client.invoke(await prompts as BaseLanguageModelInput[])

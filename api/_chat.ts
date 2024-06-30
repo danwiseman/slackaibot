@@ -102,7 +102,8 @@ async function urlToReadStream(url: string): Promise<{ stream: Readable, filenam
         responseType: 'stream',
     });
 
-    const filename = path.basename(url);
+    const params = new URLSearchParams(path.basename(url));
+    const filename = `${params.get('skoid')}.png`;
 
     return {
         stream: response.data,
