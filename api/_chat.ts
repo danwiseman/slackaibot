@@ -67,6 +67,12 @@ export async function sendGPTResponse(event: Event) {
                 thread_ts: ts,
                 text: `${(await aiResponse).content}`
             })
+
+            await slack.reactions.add({
+                channel: channel,
+                name: 'rocket',
+                timestamp: ts,
+            })
         }
 
     } catch (error) {
