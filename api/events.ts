@@ -1,7 +1,6 @@
 import crypto from 'crypto'
 import { sendGPTResponse } from './_chat'
-import {cacheClient} from "./_cache";
-import {Redis} from "ioredis";
+import { kv } from "@vercel/kv";
 
 export const config = {
     maxDuration: 30,
