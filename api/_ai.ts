@@ -32,7 +32,7 @@ export async function getMessagesFromSlackMessages(messages: MessageElement[]) {
         }).filter(Boolean)
 }
 
-export async function getResponseFromModel(prompts:  Promise<BaseLanguageModelInput>, promptModel: PromptModels) {
+export async function getResponseFromModel(prompts:  Promise<(null | AIMessage | HumanMessage)[]>, promptModel: PromptModels) {
     let response = null
     if(promptModel === PromptModels.Image) {
         const client = new DallEAPIWrapper({
@@ -40,10 +40,16 @@ export async function getResponseFromModel(prompts:  Promise<BaseLanguageModelIn
             model: promptModel,
             apiKey: process.env.OPENAI_API_KEY, // Default
         });
-        response = { content: await client.invoke(await prompts) }
+
+        const imagePrompt = (await prompts).filter((message) =>
+            message instanceof HumanMessage)
+            .map((message) => message.text)
+            .join(' ');
+
+        response = { content: await client.invoke(imagePrompt) }
     } else {
         const client = new ChatMistralAI({ model: promptModel })
-        response = await client.invoke(await prompts)
+        response = await client.invoke(await prompts as BaseLanguageModelInput[])
     }
 
     return response
