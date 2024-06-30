@@ -62,7 +62,7 @@ export async function sendGPTResponse(event: Event) {
 
 function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
 
-    let regex = new RegExp('^\s+:.*?:');
+    let regex = new RegExp('^:.*?:');
 
     let matches = messageText?.match(regex);
     if (matches && matches[0]) {
