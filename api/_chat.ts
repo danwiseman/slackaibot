@@ -1,13 +1,11 @@
-import { ChatPostMessageArguments,
-    type ConversationsRepliesResponse, WebClient} from '@slack/web-api'
+import { WebClient} from '@slack/web-api'
 import {getMessagesFromSlackMessages, getResponseFromModel, PromptModels} from "./_ai";
-import {AIMessage, HumanMessage} from "@langchain/core/messages";
-import {BaseLanguageModelInput} from "@langchain/core/dist/language_models/base";
+// @ts-ignore
+import {BaseLanguageModelInput} from '@langchain/core/dist/language_models/base';
+
 
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN)
-
-
 
 type Event = {
     channel: string
@@ -60,7 +58,7 @@ export async function sendGPTResponse(event: Event) {
 
 
 
-function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
+export function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
     let regex = /:(\w+):/;
 
     let matches = messageText?.match(regex);
