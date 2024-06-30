@@ -37,7 +37,7 @@ export async function POST(request: Request) {
         console.log (`received event ${requestType} with body.event of ${body.event}`)
         if (requestType === 'event_callback') {
             const eventID = body.event_id
-            const cachedEvent = cacheClient.get(eventID)
+            const cachedEvent = kv.get(eventID)
 
             if (await cachedEvent) {
                 console.log(`already received event ${eventID}`)
@@ -61,13 +61,13 @@ async function checkAndProcessEvent(body: any) {
     const channelType = body.event.channel_type
     const eventID = body.event_id
 
-    await cacheClient.set(eventID, 'processing')
+    await kv.set(eventID, 'processing')
     if ((eventType === 'app_mention') || ((eventType === 'message') && (channelType === 'im'))) {
         await sendGPTResponse(body.event)
-        await cacheClient.set(eventID, 'processed')
+        await kv.set(eventID, 'processed')
 
     } else {
-        await cacheClient.set(eventID, 'skipped')
+        await kv.set(eventID, 'skipped')
     }
     return new Response('Success!', {status: 200})
 }
