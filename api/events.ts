@@ -10,7 +10,7 @@ async function isValidSlackRequest(request: Request, body: any) {
     const signingSecret = process.env.SLACK_SIGNING_SECRET!
     const timestamp = request.headers.get('X-Slack-Request-Timestamp')!
     const slackSignature = request.headers.get('X-Slack-Signature')!
-    const base = `v0:${timestamp}:${JSON.stringify(body)}`
+    const base = `v0:${timestamp}:${body}`
     const hmac = crypto
         .createHmac('sha256', signingSecret)
         .update(base)
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
 
-    if (await isValidSlackRequest(request, body)) {
+    if (await isValidSlackRequest(request, rawBody)) {
         console.log (`received event ${requestType} with body.event of ${body.event}`)
         if (requestType === 'event_callback') {
             const eventID = body.event_id
