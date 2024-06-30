@@ -2,6 +2,7 @@ import {ChatMistralAI} from '@langchain/mistralai';
 import {ChatOpenAI} from "@langchain/openai";
 import {AIMessage, HumanMessage} from "@langchain/core/messages";
 import {MessageElement} from "@slack/web-api/dist/types/response/ConversationsRepliesResponse";
+// @ts-ignore
 import {BaseLanguageModelInput} from "@langchain/core/dist/language_models/base";
 
 // REWORK this a little to allow options from Slack?
