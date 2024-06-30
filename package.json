@@ -16,7 +16,7 @@
     "@langchain/mistralai": "^0.0.25",
     "@langchain/openai": "^0.2.1",
     "@slack/web-api": "7.0.1",
-    "ioredis": "^5.4.1",
+    "@vercel/kv": "^2.0.0",
     "axios": "^1.7.2"
   },
   "devDependencies": {
