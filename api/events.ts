@@ -6,9 +6,6 @@ export const config = {
     maxDuration: 30,
 }
 
-let isRedisConnected = false; // store the status of Redis connection
-
-
 async function isValidSlackRequest(request: Request, body: any) {
     const signingSecret = process.env.SLACK_SIGNING_SECRET!
     const timestamp = request.headers.get('X-Slack-Request-Timestamp')!
@@ -31,16 +28,13 @@ export async function POST(request: Request) {
         return new Response(body.challenge, { status: 200 })
     }
 
-    if (!isRedisConnected) {  // use isRedisConnected
+    if (!cacheClient.status || cacheClient.status === 'end' || cacheClient.status === 'close') {
         await cacheClient.connect();
-        isRedisConnected = true;  // update the status after connection
     }
 
     if (await isValidSlackRequest(request, body)) {
         if (requestType === 'event_callback') {
             const eventID = body.event_id
-
-
             const cachedEvent = cacheClient.get(eventID)
 
             if (await cachedEvent) {
