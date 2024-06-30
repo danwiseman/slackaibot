@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     }
 
     if (await isValidSlackRequest(request, body)) {
+        console.log (`received event ${requestType} with body.event of ${body.event}`)
         if (requestType === 'event_callback') {
             const eventID = body.event_id
             const cachedEvent = cacheClient.get(eventID)
