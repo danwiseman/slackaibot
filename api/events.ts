@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { sendGPTResponse } from './_chat'
 import {cacheClient} from "./_cache";
+import {Redis} from "ioredis";
 
 export const config = {
     maxDuration: 30,
@@ -28,9 +29,7 @@ export async function POST(request: Request) {
         return new Response(body.challenge, { status: 200 })
     }
 
-    if (!cacheClient.status || cacheClient.status === 'end' || cacheClient.status === 'close') {
-        await cacheClient.connect();
-    }
+
 
     console.log (`received event ${requestType} with body.event of ${body.event}`)
 
