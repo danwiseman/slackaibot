@@ -33,6 +33,13 @@ export async function sendGPTResponse(event: Event) {
 
         if (!thread.messages) throw new Error('No messages found in thread')
 
+        // react to provide feedback to user
+        await slack.reactions.add({
+            channel: channel,
+            name: 'thinking_face',
+            timestamp: ts,
+        })
+
         const model = getPromptModelsFromSlackEmoji(
             thread.messages[0].text?.replace(/^<@.*?>/, ''))
 
