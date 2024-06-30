@@ -26,7 +26,10 @@ then a reaction of :rocket: is added after successful AI response.
 
 ## Requirements
 
-- It is set up to run on Vercel and Redis
+You will need a Vercel account and a Vercel KV database. You will
+also have to add permissions to the slack application.
+
+TODO: add that here. :cold_sweat:
 
 ## Based
 
