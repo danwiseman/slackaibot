@@ -9,7 +9,7 @@ import {BaseLanguageModelInput} from "@langchain/core/dist/language_models/base"
 export enum PromptModels {
     Chat = "mistral-large-latest",
     Code = "codestral-latest",
-    Image = "dall-e-4"
+    Image = "dall-e-3"
 }
 
 export async function getMessagesFromSlackMessages(messages: MessageElement[]) {
