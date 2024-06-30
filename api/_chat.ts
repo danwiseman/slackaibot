@@ -61,24 +61,22 @@ export async function sendGPTResponse(event: Event) {
 
 
 function getPromptModelsFromSlackEmoji(messageText: string | undefined) {
-
-    let regex = new RegExp('^:.*?:');
+    let regex = /:(\w+):/;
 
     let matches = messageText?.match(regex);
-    if (matches && matches[0]) {
-        let emoji = matches[0].trim();
-        console.log(`found emoji ${emoji}`)
+    if (matches && matches[1]) {
+        let emoji = matches[1];
+        console.log(`found emoji ${emoji}`);
         switch (emoji) {
-            case ':avocado:':
-                return PromptModels.Code
-            case ':camera:':
-                return PromptModels.Image
+            case 'avocado':
+                return PromptModels.Code;
+            case 'camera':
+                return PromptModels.Image;
             default:
-                return PromptModels.Chat
+                return PromptModels.Chat;
         }
     }
 
-    return PromptModels.Chat
-
+    return PromptModels.Chat;
 }
 
